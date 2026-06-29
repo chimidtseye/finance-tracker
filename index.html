@@ -94,6 +94,12 @@
             padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer;
         }
 
+        /* Жижиг нэмэх товчлуур */
+        .btn-mini {
+            background-color: var(--primary); color: #000; border: none;
+            padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
+        }
+
         .list-items { max-height: 380px; overflow-y: auto; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #2a3545; }
         .item-name { font-weight: 600; color: var(--text-light); font-size: 15px; }
@@ -163,7 +169,10 @@
         </div>
 
         <div class="card">
-            <h3>🏦 Идэвхтэй зээлийн хяналт</h3>
+            <h3>
+                <span>🏦 Идэвхтэй зээлийн хяналт</span>
+                <button class="btn-mini" onclick="goToAddLoan()">➕ Нэмэх</button>
+            </h3>
             <div id="active-loans-list" style="max-height: 200px; overflow-y: auto;">
                 </div>
         </div>
@@ -250,6 +259,27 @@
     let transactions = JSON.parse(localStorage.getItem('my_finance_pwa_v4')) || [];
     let chartObj = null;
 
+    // Шинэ зээл шууд нэмэх рүү үсрэх функц
+    function goToAddLoan() {
+        // Бичилт таб руу шилжих
+        const addTabBtn = document.querySelectorAll('.nav-bar button')[1];
+        switchTab('tab-add', addTabBtn);
+        
+        // Зээл авах төрлийг шууд сонгох
+        document.getElementById('tx-type').value = 'borrowed';
+        adjustFormFields();
+    }
+
+   let transactions = JSON.parse(localStorage.getItem('my_finance_pwa_v4')) || [];
+    let chartObj = null;
+
+    function goToAddLoan() {
+        const addTabBtn = document.querySelectorAll('.nav-bar button')[1];
+        switchTab('tab-add', addTabBtn);
+        document.getElementById('tx-type').value = 'borrowed';
+        adjustFormFields();
+    }
+
     function adjustFormFields() {
         const type = document.getElementById('tx-type').value;
         const catSelect = document.getElementById('tx-cat');
@@ -261,6 +291,10 @@
 
         if (type === 'expense') {
             catSelect.innerHTML = `
+                <option value="Хоол хүнс">🛒 Хоол хүнс</option>
+                <option value="Бензин, унаа">🚘 Бензин, унаа</option>
+                <option value="Ахуйн хэрэглээ">🏠 Ахуйн хэрэглээ</option>
+                <option value="Гоо сайхан">💄 Гоо сайхан</option>
                 <option value="Эрүүл мэнд">🩺 Эрүүл мэнд</option>
                 <option value="Хүү">📈 Хүү</option>
                 <option value="Нөхөр">👨 Нөхөр</option>
@@ -299,7 +333,7 @@
         activeLoansContainer.innerHTML = '';
 
         let totalInc = 0, totalExp = 0, totalLent = 0, totalBorrowed = 0;
-        let loanSummary = {}; // Тогтмол зээлүүдийн үлдэгдэл хянах
+        let loanSummary = {};
 
         transactions.forEach(t => {
             let sign = '-', cls = 'exp', subDetails = '';
@@ -341,7 +375,6 @@
             listContainer.appendChild(row);
         });
 
-        // Дашбоард дээр идэвхтэй зээлүүдийг жагсаах
         Object.keys(loanSummary).forEach(loanName => {
             const loan = loanSummary[loanName];
             if(loan.total > 0) {
@@ -358,8 +391,6 @@
             activeLoansContainer.innerHTML = '<div style="color:var(--text-color); font-size:13px; text-align:center; padding:10px;">Идэвхтэй зээл байхгүй</div>';
         }
 
-        // Хүнд мөнгө зээлүүлэхэд цэвэр хөрөнгөөс шууд хасагдах логик:
-        // Цэвэр хөрөнгө = (Орлого + Авсан зээл) - Зарлага - Зээлүүлсэн мөнгө - Авсан зээлийн үлдэгдэл
         const cashInHand = totalInc - totalExp - (transactions.filter(t=>t.type==='lent').reduce((s,t)=>s+t.amount,0) - transactions.filter(t=>t.type==='repay_in').reduce((s,t)=>s+t.amount,0)) + (transactions.filter(t=>t.type==='borrowed').reduce((s,t)=>s+t.amount,0) - transactions.filter(t=>t.type==='repay_out').reduce((s,t)=>s+t.amount,0));
         const netWorth = cashInHand - totalBorrowed; 
 
@@ -405,7 +436,7 @@
     }
 
     function updateChart() {
-        const categories = ['Эрүүл мэнд', 'Хүү', 'Нөхөр', 'Өөртөө'];
+        const categories = ['Хоол хүнс', 'Бензин, унаа', 'Ахуйн хэрэглээ', 'Гоо сайхан', 'Эрүүл мэнд', 'Хүү', 'Нөхөр', 'Өөртөө'];
         const dataVals = categories.map(cat => {
             return transactions
                 .filter(t => t.type === 'expense' && t.cat === cat)
@@ -421,16 +452,23 @@
             type: 'doughnut',
             data: {
                 labels: categories,
-                datasets: [{ data: dataVals, backgroundColor: ['#2ecc71', '#ff4d4d', '#45f3ff', '#ffb300'], borderWidth: 0 }]
+                datasets: [{ 
+                    data: dataVals, 
+                    backgroundColor: ['#2ecc71', '#ff5252', '#45ff79', '#ffb300', '#3498db', '#9b59b6', '#e67e22', '#1abc9c'], 
+                    borderWidth: 0 
+                }]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { position: 'right', labels: { color: '#c5c6c7', font: { size: 11 } } } }
+                plugins: { legend: { position: 'right', labels: { color: '#b3cbb7', font: { size: 10 } } } }
             }
         });
     }
 
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", function() {
+        adjustFormFields();
+        render();
+    });
 </script>
 </body>
 </html>
