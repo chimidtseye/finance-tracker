@@ -14,16 +14,17 @@
 
     <style>
         :root {
-            --bg-color: #0b0c10;
-            --card-bg: #1f2833;
-            --primary: #45f3ff;
-            --secondary: #66fcf1;
-            --text-color: #c5c6c7;
-            --text-light: #ffffff;
-            --danger: #ff4d4d;
+            /* Доллар Ногоон Өнгөний Сэдэв */
+            --bg-color: #0d1f10;       /* Харанхуй доллар ногоон арын дэвсгэр */
+            --card-bg: #16331b;        /* Картуудын ногоон өнгө */
+            --primary: #45ff79;         /* Тод ногоон гэрэлтсэн өнгө */
+            --secondary: #a3ffd0;       /* Зөөлөн цайвар ногоон */
+            --text-color: #b3cbb7;      /* Текстний бүдэг ногоон өнгө */
+            --text-light: #ffffff;      /* Цагаан текст */
+            --danger: #ff5252;
             --success: #2ecc71;
             --warning: #f1c40f;
-            --border: #2f3e46;
+            --border: #224d29;
         }
 
         * {
@@ -51,15 +52,16 @@
 
         .header { margin: 15px 0 20px 0; }
         .header h1 { color: var(--text-light); margin: 0; font-size: 26px; font-weight: 700; }
-        .header p { margin: 4px 0 0 0; color: var(--primary); font-size: 14px; }
+        .header p { margin: 4px 0 0 0; color: var(--primary); font-size: 14px; letter-spacing: 1px; }
 
         .net-worth-card {
-            background: linear-gradient(135deg, #1f2833 0%, #151a21 100%);
+            background: linear-gradient(135deg, #16331b 0%, #0d1f10 100%);
             border-radius: 20px;
             padding: 24px;
             text-align: center;
             margin-bottom: 20px;
             border: 1px solid var(--border);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
         }
         .net-worth-card .amount { font-size: 34px; color: var(--text-light); font-weight: 800; margin: 10px 0; }
 
@@ -82,39 +84,38 @@
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; margin-bottom: 6px; color: var(--text-color); }
         input, select {
-            width: 100%; background-color: #151a21; border: 1px solid var(--border);
+            width: 100%; background-color: #0a170b; border: 1px solid var(--border);
             color: var(--text-light); padding: 12px; border-radius: 10px; font-size: 15px; outline: none;
         }
         input:focus, select:focus { border-color: var(--primary); }
         
-        .dynamic-field { display: none; background: #1a222d; padding: 10px; border-radius: 10px; margin-bottom: 12px; border: 1px dashed var(--border); }
+        .dynamic-field { display: none; background: #0f2413; padding: 10px; border-radius: 10px; margin-bottom: 12px; border: 1px dashed var(--border); }
         
         button.btn-block {
             width: 100%; background-color: var(--primary); color: #000; border: none;
             padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer;
         }
 
-        /* Жижиг нэмэх товчлуур */
         .btn-mini {
             background-color: var(--primary); color: #000; border: none;
             padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
         }
 
         .list-items { max-height: 380px; overflow-y: auto; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #2a3545; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1c4022; }
         .item-name { font-weight: 600; color: var(--text-light); font-size: 15px; }
         .item-sub { font-size: 12px; color: var(--text-color); margin-top: 2px; }
         .item-amt { font-weight: 700; font-size: 15px; }
-        .item-amt.inc { color: var(--success); }
+        .item-amt.inc { color: var(--primary); }
         .item-amt.exp { color: var(--danger); }
         .item-amt.warn { color: var(--warning); }
-        .item-amt.info { color: #9c27b0; }
+        .item-amt.info { color: #cc66ff; }
 
-        .del-btn { background: none; border: none; color: #ff4d4d; font-size: 16px; margin-left: 10px; cursor: pointer; }
+        .del-btn { background: none; border: none; color: #ff5252; font-size: 16px; margin-left: 10px; cursor: pointer; }
 
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: calc(65px + env(safe-area-inset-bottom));
-            background-color: #151a21; border-top: 1px solid var(--border); display: flex;
+            background-color: #0a170b; border-top: 1px solid var(--border); display: flex;
             justify-content: space-around; padding-bottom: env(safe-area-inset-bottom); z-index: 1000;
         }
         .nav-item {
@@ -124,7 +125,7 @@
         .nav-item.active { color: var(--primary); }
         .nav-item span { font-size: 20px; margin-bottom: 2px; }
 
-        .loan-badge { background: #2a3545; padding: 8px; border-radius: 8px; font-size: 12px; margin-top: 6px; border: 1px solid #3b4a60; }
+        .loan-badge { background: #0f2413; padding: 8px; border-radius: 8px; font-size: 12px; margin-top: 6px; border: 1px solid #1c4022; }
     </style>
 </head>
 <body>
@@ -154,8 +155,8 @@
             <div class="label" style="color:var(--warning);">🤝 Зээлүүлсэн (Авлага)</div>
             <div class="val" id="total-lent">0 ₮</div>
         </div>
-        <div class="stat-box" style="border-left: 4px solid #9c27b0;">
-            <div class="label" style="color:#9c27b0;">🏦 Авсан зээлийн үлдэгдэл</div>
+        <div class="stat-box" style="border-left: 4px solid #cc66ff;">
+            <div class="label" style="color:#cc66ff;">🏦 Авсан зээлийн үлдэгдэл</div>
             <div class="val" id="total-borrowed">0 ₮</div>
         </div>
     </div>
@@ -259,20 +260,6 @@
     let transactions = JSON.parse(localStorage.getItem('my_finance_pwa_v4')) || [];
     let chartObj = null;
 
-    // Шинэ зээл шууд нэмэх рүү үсрэх функц
-    function goToAddLoan() {
-        // Бичилт таб руу шилжих
-        const addTabBtn = document.querySelectorAll('.nav-bar button')[1];
-        switchTab('tab-add', addTabBtn);
-        
-        // Зээл авах төрлийг шууд сонгох
-        document.getElementById('tx-type').value = 'borrowed';
-        adjustFormFields();
-    }
-
-   let transactions = JSON.parse(localStorage.getItem('my_finance_pwa_v4')) || [];
-    let chartObj = null;
-
     function goToAddLoan() {
         const addTabBtn = document.querySelectorAll('.nav-bar button')[1];
         switchTab('tab-add', addTabBtn);
@@ -283,6 +270,8 @@
     function adjustFormFields() {
         const type = document.getElementById('tx-type').value;
         const catSelect = document.getElementById('tx-cat');
+        
+        if (!catSelect) return; 
         
         document.getElementById('field-lent').style.display = 'none';
         document.getElementById('field-loan-details').style.display = 'none';
@@ -329,8 +318,8 @@
         const listContainer = document.getElementById('tx-list');
         const activeLoansContainer = document.getElementById('active-loans-list');
         
-        listContainer.innerHTML = '';
-        activeLoansContainer.innerHTML = '';
+        if(listContainer) listContainer.innerHTML = '';
+        if(activeLoansContainer) activeLoansContainer.innerHTML = '';
 
         let totalInc = 0, totalExp = 0, totalLent = 0, totalBorrowed = 0;
         let loanSummary = {};
@@ -360,74 +349,81 @@
                 }
             }
 
-            const row = document.createElement('div');
-            row.className = 'item-row';
-            row.innerHTML = `
-                <div>
-                    <div class="item-name">${t.desc}</div>
-                    <div class="item-sub">${t.cat}${subDetails} · ${t.date}</div>
-                </div>
-                <div style="display:flex; align-items:center;">
-                    <span class="item-amt ${cls}">${sign}${t.amount.toLocaleString()} ₮</span>
-                    <button class="del-btn" onclick="deleteTx(${t.id})">✕</button>
-                </div>
-            `;
-            listContainer.appendChild(row);
-        });
-
-        Object.keys(loanSummary).forEach(loanName => {
-            const loan = loanSummary[loanName];
-            if(loan.total > 0) {
-                const loanBox = document.createElement('div');
-                loanBox.className = 'loan-badge';
-                loanBox.innerHTML = `
-                    💸 <b>${loanName}</b>: Үлдэгдэл: <span style="color:var(--danger)">${loan.total.toLocaleString()} ₮</span><br>
-                    🗓️ Төлөх өдөр: Сар бүрийн <b>${loan.payDay || '-'}</b> | 🏁 Дуусах хугацаа: <b>${loan.endDate || '-'}</b>
+            if(listContainer) {
+                const row = document.createElement('div');
+                row.className = 'item-row';
+                row.innerHTML = `
+                    <div>
+                        <div class="item-name">${t.desc}</div>
+                        <div class="item-sub">${t.cat}${subDetails} · ${t.date}</div>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <span class="item-amt ${cls}">${sign}${t.amount.toLocaleString()} ₮</span>
+                        <button class="del-btn" onclick="deleteTx(${t.id})">✕</button>
+                    </div>
                 `;
-                activeLoansContainer.appendChild(loanBox);
+                listContainer.appendChild(row);
             }
         });
-        if(activeLoansContainer.innerHTML === '') {
-            activeLoansContainer.innerHTML = '<div style="color:var(--text-color); font-size:13px; text-align:center; padding:10px;">Идэвхтэй зээл байхгүй</div>';
+
+        if(activeLoansContainer) {
+            Object.keys(loanSummary).forEach(loanName => {
+                const loan = loanSummary[loanName];
+                if(loan.total > 0) {
+                    const loanBox = document.createElement('div');
+                    loanBox.className = 'loan-badge';
+                    loanBox.innerHTML = `
+                        💸 <b>${loanName}</b>: Үлдэгдэл: <span style="color:var(--danger)">${loan.total.toLocaleString()} ₮</span><br>
+                        🗓️ Төлөх өдөр: Сар бүрийн <b>${loan.payDay || '-'}</b> | 🏁 Дуусах хугацаа: <b>${loan.endDate || '-'}</b>
+                    `;
+                    activeLoansContainer.appendChild(loanBox);
+                }
+            });
+            if(activeLoansContainer.innerHTML === '') {
+                activeLoansContainer.innerHTML = '<div style="color:var(--text-color); font-size:13px; text-align:center; padding:10px;">Идэвхтэй зээл байхгүй</div>';
+            }
         }
 
         const cashInHand = totalInc - totalExp - (transactions.filter(t=>t.type==='lent').reduce((s,t)=>s+t.amount,0) - transactions.filter(t=>t.type==='repay_in').reduce((s,t)=>s+t.amount,0)) + (transactions.filter(t=>t.type==='borrowed').reduce((s,t)=>s+t.amount,0) - transactions.filter(t=>t.type==='repay_out').reduce((s,t)=>s+t.amount,0));
         const netWorth = cashInHand - totalBorrowed; 
 
-        document.getElementById('net-worth').innerText = `${netWorth.toLocaleString()} ₮`;
-        document.getElementById('total-inc').innerText = `${totalInc.toLocaleString()} ₮`;
-        document.getElementById('total-exp').innerText = `${totalExp.toLocaleString()} ₮`;
-        document.getElementById('total-lent').innerText = `${Math.max(0, totalLent).toLocaleString()} ₮`;
-        document.getElementById('total-borrowed').innerText = `${Math.max(0, totalBorrowed).toLocaleString()} ₮`;
+        if(document.getElementById('net-worth')) document.getElementById('net-worth').innerText = `${netWorth.toLocaleString()} ₮`;
+        if(document.getElementById('total-inc')) document.getElementById('total-inc').innerText = `${totalInc.toLocaleString()} ₮`;
+        if(document.getElementById('total-exp')) document.getElementById('total-exp').innerText = `${totalExp.toLocaleString()} ₮`;
+        if(document.getElementById('total-lent')) document.getElementById('total-lent').innerText = `${Math.max(0, totalLent).toLocaleString()} ₮`;
+        if(document.getElementById('total-borrowed')) document.getElementById('total-borrowed').innerText = `${Math.max(0, totalBorrowed).toLocaleString()} ₮`;
 
         updateChart();
     }
 
-    document.getElementById('tx-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const type = document.getElementById('tx-type').value;
-        const cat = document.getElementById('tx-cat').value;
-        const amount = parseInt(document.getElementById('tx-amount').value);
-        const desc = document.getElementById('tx-desc').value;
-        
-        const lentTo = document.getElementById('lent-to').value;
-        const payDay = document.getElementById('loan-pay-day').value;
-        const endDate = document.getElementById('loan-end-date').value;
-        const account = document.getElementById('target-account').value;
+    const txForm = document.getElementById('tx-form');
+    if(txForm) {
+        txForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const type = document.getElementById('tx-type').value;
+            const cat = document.getElementById('tx-cat').value;
+            const amount = parseInt(document.getElementById('tx-amount').value);
+            const desc = document.getElementById('tx-desc').value;
+            
+            const lentTo = document.getElementById('lent-to').value;
+            const payDay = document.getElementById('loan-pay-day').value;
+            const endDate = document.getElementById('loan-end-date').value;
+            const account = document.getElementById('target-account').value;
 
-        const now = new Date();
-        const dateStr = `${now.getMonth()+1}/${now.getDate()}`;
+            const now = new Date();
+            const dateStr = `${now.getMonth()+1}/${now.getDate()}`;
 
-        const newTx = { id: Date.now(), type, cat, amount, desc, date: dateStr, lentTo, payDay, endDate, account };
-        transactions.unshift(newTx);
-        
-        localStorage.setItem('my_finance_pwa_v4', JSON.stringify(transactions));
-        render();
-        
-        this.reset();
-        adjustFormFields();
-        switchTab('tab-home', document.querySelectorAll('.nav-item')[0]);
-    });
+            const newTx = { id: Date.now(), type, cat, amount, desc, date: dateStr, lentTo, payDay, endDate, account };
+            transactions.unshift(newTx);
+            
+            localStorage.setItem('my_finance_pwa_v4', JSON.stringify(transactions));
+            render();
+            
+            this.reset();
+            adjustFormFields();
+            switchTab('tab-home', document.querySelectorAll('.nav-item')[0]);
+        });
+    }
 
     function deleteTx(id) {
         transactions = transactions.filter(t => t.id !== id);
