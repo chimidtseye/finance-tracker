@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Миний Санхүү</title>
+    <!-- График зурахад ашиглах Chart.js сан -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #ffffff;
+            --text-muted: #aaaaaa;
+            --primary: #4caf50;
+            --danger: #f44336;
+            --border: #333333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        /* Дансны үлдэгдэл карт */
+        .balance-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .balance-card h2 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        .balance-card p {
+            margin: 5px 0 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        /* Орлого зарлагын жижиг картууд */
+        .stats-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-box {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .stat-box.income h3 { color: var(--primary); margin: 0; font-size: 18px; }
+        .stat-box.expense h3 { color: var(--danger); margin: 0; font-size: 18px; }
+        .stat-box p { margin: 5px 0 0 0; font-weight: bold; }
+
+        /* Форм болон Карт */
+        .section-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .section-card h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            box-sizing: border-box;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: #2a2a2a;
+            color: white;
+            font-size: 15px;
+        }
+
+        button {
+            background-color: var(--primary);
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        /* Түүх хэсэг */
+        .transaction-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-info .item-desc {
+            font-weight: 500;
+        }
+
+        .item-info .item-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .item-amount.income { color: var(--primary); }
+        .item-amount.expense { color: var(--danger); }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            width: auto;
+            padding: 0 0 0 10px;
+            cursor: pointer;
+            display: inline;
+        }
+        .delete-btn:hover { color: var(--danger); }
+
+        /* График */
+        .chart-container {
+            position: relative;
+            margin-auto: auto;
+            height: 200px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>МИНИЙ САНХҮҮ</h1>
+    </header>
+
+    <!-- Төв баланс -->
+    <div class="balance-card">
+        <h2 id="total-balance">0 ₮</h2>
+        <p>Цэвэр хөрөнгө</p>
+    </div>
+
+    <!-- Орлого зарлагын хураангуй -->
+    <div class="stats-container">
+        <div class="stat-box income">
+            <h3>Орлого</h3>
+            <p id="total-income">0 ₮</p>
+        </div>
+        <div class="stat-box expense">
+            <h3>Зарлага</h3>
+            <p id="total-expense">0 ₮</p>
+        </div>
+    </div>
+
+    <!-- График хэсэг -->
+    <div class="section-card">
+        <h4>Зарлагын бүтэц</h4>
+        <div class="chart-container">
+            <canvas id="expenseChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Гүйлгээ нэмэх форм -->
+    <div class="section-card">
+        <h4>Шинэ гүйлгээ бүртгэх</h4>
+        <form id="transaction-form">
+            <div class="form-group">
+                <select id="type">
+                    <option value="expense">Зарлага (-)</option>
+                    <option value="income">Орлого (+)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="category">
+                    <option value="Хүнс">Хүнс, хоол</option>
+                    <option value="Унаа">Унаа, бензин</option>
+                    <option value="Хэрэглээ">Ахуйн хэрэглээ</option>
+                    <option value="Цалин">Цалин, орлого</option>
+                    <option value="Бусад">Бусад</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input type="number" id="amount" placeholder="Дүн (₮)" required min="1">
+            </div>
+            <div class="form-group">
+                <input type="text" id="description" placeholder="Тайлбар" required>
+            </div>
+            <button type="submit">Бүртгэх</button>
+        </form>
+    </div>
+
+    <!-- Түүх хэсэг -->
+    <div class="section-card">
+        <h4>Гүйлгээний түүх</h4>
+        <ul id="transaction-list" class="transaction-list">
+            <!-- Энд гүйлгээнүүд жагсаалтаар орно -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    // LocalStorage-оос өгөгдөл унших
+    let transactions = JSON.parse(localStorage.getItem('transactions')) || [];
+    let myChart;
+
+    const balanceEl = document.getElementById('total-balance');
+    const incomeEl = document.getElementById('total-income');
+    const expenseEl = document.getElementById('total-expense');
+    const form = document.getElementById('transaction-form');
+    const listEl = document.getElementById('transaction-list');
+
+    // Систем ачаалагдах үед ажиллах функц
+    function init() {
+        listEl.innerHTML = '';
+        transactions.forEach(addTransactionDOM);
+        updateValues();
+        updateChart();
+    }
+
+    // Гүйлгээг дэлгэцэнд нэмэх
+    function addTransactionDOM(transaction) {
+        const sign = transaction.type === 'income' ? '+' : '-';
+        const item = document.createElement('li');
+        item.classList.add('transaction-item');
+
+        item.innerHTML = `
+            <div class="item-info">
+                <div class="item-desc">${transaction.description} <small style="color:#aaa;">(${transaction.category})</small></div>
+                <div class="item-date">${transaction.date}</div>
+            </div>
+            <div>
+                <span class="item-amount ${transaction.type}">${sign}${transaction.amount.toLocaleString()} ₮</span>
+                <button class="delete-btn" onclick="removeTransaction(${transaction.id})">✕</button>
+            </div>
+        `;
+        listEl.appendChild(item);
+    }
+
+    // Тооцооллыг шинэчлэх
+    function updateValues() {
+        const amounts = transactions.map(t => t.type === 'income' ? t.amount : -t.amount);
+        const total = amounts.reduce((acc, item) => (acc += item), 0);
+        
+        const income = transactions
+            .filter(t => t.type === 'income')
+            .reduce((acc, t) => (acc += t.amount), 0);
+
+        const expense = transactions
+            .filter(t => t.type === 'expense')
+            .reduce((acc, t) => (acc += t.amount), 0);
+
+        balanceEl.innerText = `${total.toLocaleString()} ₮`;
+        incomeEl.innerText = `${income.toLocaleString()} ₮`;
+        expenseEl.innerText = `${expense.toLocaleString()} ₮`;
+    }
+
+    // Гүйлгээ устгах
+    function removeTransaction(id) {
+        transactions = transactions.filter(t => t.id !== id);
+        updateLocalStorage();
+        init();
+    }
+
+    // Шинэ гүйлгээ хадгалах
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const type = document.getElementById('type').value;
+        const category = document.getElementById('category').value;
+        const amount = +document.getElementById('amount').value;
+        const description = document.getElementById('description').value;
+        
+        const dateNow = new Date();
+        const dateStr = `${dateNow.getFullYear()}-${String(dateNow.getMonth() + 1).padStart(2, '0')}-${String(dateNow.getDate()).padStart(2, '0')}`;
+
+        const newTransaction = {
+            id: Math.floor(Math.random() * 100000000),
+            type,
+            category,
+            amount,
+            description,
+            date: dateStr
+        };
+
+        transactions.push(newTransaction);
+        addTransactionDOM(newTransaction);
+        updateValues();
+        updateChart();
+        updateLocalStorage();
+
+        form.reset();
+    });
+
+    function updateLocalStorage() {
+        localStorage.setItem('transactions', JSON.stringify(transactions));
+    }
+
+    // Дугуй график шинэчлэх функц
+    function updateChart() {
+        const categories = ['Хүнс', 'Унаа', 'Хэрэглээ', 'Бусад'];
+        const dataValues = categories.map(cat => {
+            return transactions
+                .filter(t => t.type === 'expense' && t.category === cat)
+                .reduce((sum, t) => sum + t.amount, 0);
+        });
+
+        const ctx = document.getElementById('expenseChart').getContext('2d');
+        
+        if (myChart) {
+            myChart.destroy(); // Хуучин графикийг устгаж шинийг зурах
+        }
+
+        myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: categories,
+                datasets: [{
+                    data: dataValues,
+                    backgroundColor: ['#ff9800', '#2196f3', '#9c27b0', '#795548'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#fff' }
+                    }
+                }
+            }
+        });
+    }
+
+    // Апп-ыг ажиллуулах
+    init();
+</script>
+
+</body>
+</html>
