@@ -77,7 +77,7 @@
         .tab-content.active { display: block; }
 
         .card { background-color: var(--card-bg); border-radius: 16px; padding: 18px; margin-bottom: 16px; border: 1px solid var(--border); }
-        .card h3 { margin: 0 0 14px 0; font-size: 16px; color: var(--text-light); }
+        .card h3 { margin: 0 0 14px 0; font-size: 16px; color: var(--text-light); display: flex; justify-content: space-between; align-items: center; }
 
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; margin-bottom: 6px; color: var(--text-color); }
@@ -104,7 +104,7 @@
         .item-amt.warn { color: var(--warning); }
         .item-amt.info { color: #9c27b0; }
 
-        .del-btn { background: none; border: none; color: #ff4d4d; font-size: 16px; margin-left: 10px; }
+        .del-btn { background: none; border: none; color: #ff4d4d; font-size: 16px; margin-left: 10px; cursor: pointer; }
 
         .nav-bar {
             position: fixed; bottom: 0; left: 0; right: 0; height: calc(65px + env(safe-area-inset-bottom));
@@ -117,6 +117,8 @@
         }
         .nav-item.active { color: var(--primary); }
         .nav-item span { font-size: 20px; margin-bottom: 2px; }
+
+        .loan-badge { background: #2a3545; padding: 8px; border-radius: 8px; font-size: 12px; margin-top: 6px; border: 1px solid #3b4a60; }
     </style>
 </head>
 <body>
@@ -124,29 +126,30 @@
 <div class="container">
     <div class="header">
         <h1>Миний Санхүү</h1>
-        <p>УХААЛАГ ӨР, АВЛАГЫН СИСТЕМ</p>
+        <p>ХУВИЙН САНХҮҮГИЙН БҮРТГЭЛ</p>
     </div>
 
     <div class="net-worth-card">
-        <div style="font-size: 13px; text-transform: uppercase;">Цэвэр Хөрөнгө</div>
+        <div style="font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">Цэвэр Хөрөнгө</div>
         <div class="amount" id="net-worth">0 ₮</div>
+        <div style="font-size: 11px; color: var(--text-color);">Зээлүүлсэн мөнгө хөрөнгөөс хасагдсан болно</div>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box" style="border-left: 4px solid var(--success);">
-            <div class="label" style="color:var(--success);">🟢 Сарын Орлого</div>
+            <div class="label" style="color:var(--success);">🟢 Нийт Орлого</div>
             <div class="val" id="total-inc">0 ₮</div>
         </div>
         <div class="stat-box" style="border-left: 4px solid var(--danger);">
-            <div class="label" style="color:var(--danger);">🔴 Сарын Зарлага</div>
+            <div class="label" style="color:var(--danger);">🔴 Нийт Зарлага</div>
             <div class="val" id="total-exp">0 ₮</div>
         </div>
         <div class="stat-box" style="border-left: 4px solid var(--warning);">
-            <div class="label" style="color:var(--warning);">🤝 Нийт Авлага (Зээлүүлсэн)</div>
+            <div class="label" style="color:var(--warning);">🤝 Зээлүүлсэн (Авлага)</div>
             <div class="val" id="total-lent">0 ₮</div>
         </div>
         <div class="stat-box" style="border-left: 4px solid #9c27b0;">
-            <div class="label" style="color:#9c27b0;">🏦 Нийт Өр (Авсан зээл)</div>
+            <div class="label" style="color:#9c27b0;">🏦 Авсан зээлийн үлдэгдэл</div>
             <div class="val" id="total-borrowed">0 ₮</div>
         </div>
     </div>
@@ -157,6 +160,12 @@
             <div style="position: relative; height: 180px; width: 100%;">
                 <canvas id="expenseChart"></canvas>
             </div>
+        </div>
+
+        <div class="card">
+            <h3>🏦 Идэвхтэй зээлийн хяналт</h3>
+            <div id="active-loans-list" style="max-height: 200px; overflow-y: auto;">
+                </div>
         </div>
     </div>
 
@@ -171,8 +180,8 @@
                         <option value="income">💰 Жирийн орлого (+)</option>
                         <option value="lent">🤝 Хүнд мөнгө зээлүүлсэн (-)</option>
                         <option value="repay_in">💰 Зээлүүлсэн мөнгөө буцааж авсан (+)</option>
-                        <option value="borrowed">🏦 Хүнээс зээл авсан (+)</option>
-                        <option value="repay_out">💸 Авсан зээлээ буцааж төлсөн (-)</option>
+                        <option value="borrowed">🏦 Шинээр тогтмол зээл авах (+)</option>
+                        <option value="repay_out">💸 Авсан зээлээсээ төлөх (-)</option>
                     </select>
                 </div>
 
@@ -181,9 +190,16 @@
                         <label>Хэнд зээлүүлсэн? (Нэр)</label>
                         <input type="text" id="lent-to" placeholder="Жишээ: Болд">
                     </div>
+                </div>
+
+                <div id="field-loan-details" class="dynamic-field">
                     <div class="form-group">
-                        <label>Буцааж авах огноо</label>
-                        <input type="date" id="lent-return-date">
+                        <label>Сар бүр төлөх өдөр (1-31 хооронд тоо)</label>
+                        <input type="number" id="loan-pay-day" placeholder="Жишээ: 25" min="1" max="31">
+                    </div>
+                    <div class="form-group">
+                        <label>Зээл дуусах огноо</label>
+                        <input type="date" id="loan-end-date">
                     </div>
                 </div>
 
@@ -194,7 +210,6 @@
                             <option value="Хаан Банк карт">💳 Хаан Банк карт</option>
                             <option value="Голомт карт">💳 Голомт карт</option>
                             <option value="Бэлэн мөнгө">💵 Бэлэн мөнгө</option>
-                            <option value="Хадгаламж">💎 Хадгаламж данс</option>
                         </select>
                     </div>
                 </div>
@@ -205,12 +220,12 @@
                         </select>
                 </div>
                 <div class="form-group">
-                    <label>Дүн (₮)</label>
+                    <label>Мөнгөн дүн (₮)</label>
                     <input type="number" id="tx-amount" placeholder="Дүн оруулна уу" required>
                 </div>
                 <div class="form-group">
-                    <label>Нэмэлт тайлбар</label>
-                    <input type="text" id="tx-desc" placeholder="Жишээ: Тэмдэглэл..." required>
+                    <label>Нэмэлт тайлбар (Зээлийн нэр г.м)</label>
+                    <input type="text" id="tx-desc" placeholder="Жишээ: Хас цалингийн зээл" required>
                 </div>
                 <button type="submit" class="btn-block">Хадгалах</button>
             </form>
@@ -232,7 +247,7 @@
 </div>
 
 <script>
-    let transactions = JSON.parse(localStorage.getItem('my_finance_pwa_v3')) || [];
+    let transactions = JSON.parse(localStorage.getItem('my_finance_pwa_v4')) || [];
     let chartObj = null;
 
     function adjustFormFields() {
@@ -240,24 +255,31 @@
         const catSelect = document.getElementById('tx-cat');
         
         document.getElementById('field-lent').style.display = 'none';
+        document.getElementById('field-loan-details').style.display = 'none';
         document.getElementById('field-account').style.display = 'none';
         catSelect.innerHTML = '';
 
         if (type === 'expense') {
-            catSelect.innerHTML = `<option value="Хүнс">🛒 Хүнс, хоол</option><option value="Унаа">🚘 Унаа, бензин</option><option value="Хэрэглээ">🏠 Ахуйн хэрэглээ</option><option value="Бусад">📦 Бусад</option>`;
+            catSelect.innerHTML = `
+                <option value="Эрүүл мэнд">🩺 Эрүүл мэнд</option>
+                <option value="Хүү">📈 Хүү</option>
+                <option value="Нөхөр">👨 Нөхөр</option>
+                <option value="Өөртөө">💃 Өөртөө</option>
+            `;
         } else if (type === 'income') {
             catSelect.innerHTML = `<option value="Цалин">💼 Цалин, орлого</option><option value="Бусад">📦 Бусад орлого</option>`;
         } else if (type === 'lent') {
             document.getElementById('field-lent').style.display = 'block';
-            catSelect.innerHTML = `<option value="Зээлүүлсэн мөнгө">🤝 Авлага үүссэн</option>`;
+            catSelect.innerHTML = `<option value="Зээлүүлсэн мөнгө">🤝 Хүнд зээлүүлсэн</option>`;
         } else if (type === 'repay_in') {
             document.getElementById('field-account').style.display = 'block';
-            catSelect.innerHTML = `<option value="Зээл буцаж орсон">💰 Авлага хаагдсан</option>`;
+            catSelect.innerHTML = `<option value="Зээл буцаж орсон">💰 Зээл буцаж авсан</option>`;
         } else if (type === 'borrowed') {
-            catSelect.innerHTML = `<option value="Авсан зээл">🏦 Өр үүссэн</option>`;
+            document.getElementById('field-loan-details').style.display = 'block';
+            catSelect.innerHTML = `<option value="Тогтмол зээл">🏦 Шинэ тогтмол зээл</option>`;
         } else if (type === 'repay_out') {
             document.getElementById('field-account').style.display = 'block';
-            catSelect.innerHTML = `<option value="Өр төлөлт">💸 Өр дарагдсан</option>`;
+            catSelect.innerHTML = `<option value="Зээл төлөлт">💸 Авсан зээлээс төлсөн</option>`;
         }
     }
 
@@ -266,14 +288,18 @@
         document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
         el.classList.add('active');
-        if(tabId === 'tab-home') updateChart();
+        if(tabId === 'tab-home') render();
     }
 
     function render() {
         const listContainer = document.getElementById('tx-list');
+        const activeLoansContainer = document.getElementById('active-loans-list');
+        
         listContainer.innerHTML = '';
+        activeLoansContainer.innerHTML = '';
 
         let totalInc = 0, totalExp = 0, totalLent = 0, totalBorrowed = 0;
+        let loanSummary = {}; // Тогтмол зээлүүдийн үлдэгдэл хянах
 
         transactions.forEach(t => {
             let sign = '-', cls = 'exp', subDetails = '';
@@ -281,17 +307,23 @@
             if (t.type === 'income') { totalInc += t.amount; sign = '+'; cls = 'inc'; }
             else if (t.type === 'expense') { totalExp += t.amount; sign = '-'; cls = 'exp'; }
             else if (t.type === 'lent') { 
-                totalLent += t.amount; sign = '➔'; cls = 'warn'; 
-                subDetails = ` | Хэнд: <b>${t.lentTo || 'Үл мэдэгдэх'}</b> (Авах: ${t.returnDate || '-'})`;
+                totalLent += t.amount; sign = '-'; cls = 'warn'; 
+                subDetails = ` | Хэнд: <b>${t.lentTo || 'Үл мэдэгдэх'}</b>`;
             }
-            else if (t.type === 'repay_in') { 
-                totalLent -= t.amount; sign = '+'; cls = 'inc'; 
-                subDetails = ` | Данс: <b>${t.account || '-'}</b>`;
+            else if (t.type === 'repay_in') { totalLent -= t.amount; sign = '+'; cls = 'inc'; }
+            else if (t.type === 'borrowed') { 
+                totalBorrowed += t.amount; sign = '+'; cls = 'info';
+                loanSummary[t.desc] = {
+                    total: (loanSummary[t.desc]?.total || 0) + t.amount,
+                    payDay: t.payDay,
+                    endDate: t.endDate
+                };
             }
-            else if (t.type === 'borrowed') { totalBorrowed += t.amount; sign = '+'; cls = 'info'; }
             else if (t.type === 'repay_out') { 
-                totalBorrowed -= t.amount; sign = '-'; cls = 'exp'; 
-                subDetails = ` | Данс: <b>${t.account || '-'}</b>`;
+                totalBorrowed -= t.amount; sign = '-'; cls = 'exp';
+                if(loanSummary[t.desc]) {
+                    loanSummary[t.desc].total -= t.amount;
+                }
             }
 
             const row = document.createElement('div');
@@ -309,9 +341,27 @@
             listContainer.appendChild(row);
         });
 
-        // Цэвэр хөрөнгө = Бэлэн байгаа мөнгө + Бусдаас авах авлага - Хүнд өгөх өр
+        // Дашбоард дээр идэвхтэй зээлүүдийг жагсаах
+        Object.keys(loanSummary).forEach(loanName => {
+            const loan = loanSummary[loanName];
+            if(loan.total > 0) {
+                const loanBox = document.createElement('div');
+                loanBox.className = 'loan-badge';
+                loanBox.innerHTML = `
+                    💸 <b>${loanName}</b>: Үлдэгдэл: <span style="color:var(--danger)">${loan.total.toLocaleString()} ₮</span><br>
+                    🗓️ Төлөх өдөр: Сар бүрийн <b>${loan.payDay || '-'}</b> | 🏁 Дуусах хугацаа: <b>${loan.endDate || '-'}</b>
+                `;
+                activeLoansContainer.appendChild(loanBox);
+            }
+        });
+        if(activeLoansContainer.innerHTML === '') {
+            activeLoansContainer.innerHTML = '<div style="color:var(--text-color); font-size:13px; text-align:center; padding:10px;">Идэвхтэй зээл байхгүй</div>';
+        }
+
+        // Хүнд мөнгө зээлүүлэхэд цэвэр хөрөнгөөс шууд хасагдах логик:
+        // Цэвэр хөрөнгө = (Орлого + Авсан зээл) - Зарлага - Зээлүүлсэн мөнгө - Авсан зээлийн үлдэгдэл
         const cashInHand = totalInc - totalExp - (transactions.filter(t=>t.type==='lent').reduce((s,t)=>s+t.amount,0) - transactions.filter(t=>t.type==='repay_in').reduce((s,t)=>s+t.amount,0)) + (transactions.filter(t=>t.type==='borrowed').reduce((s,t)=>s+t.amount,0) - transactions.filter(t=>t.type==='repay_out').reduce((s,t)=>s+t.amount,0));
-        const netWorth = cashInHand + totalLent - totalBorrowed;
+        const netWorth = cashInHand - totalBorrowed; 
 
         document.getElementById('net-worth').innerText = `${netWorth.toLocaleString()} ₮`;
         document.getElementById('total-inc').innerText = `${totalInc.toLocaleString()} ₮`;
@@ -330,16 +380,17 @@
         const desc = document.getElementById('tx-desc').value;
         
         const lentTo = document.getElementById('lent-to').value;
-        const returnDate = document.getElementById('lent-return-date').value;
+        const payDay = document.getElementById('loan-pay-day').value;
+        const endDate = document.getElementById('loan-end-date').value;
         const account = document.getElementById('target-account').value;
 
         const now = new Date();
         const dateStr = `${now.getMonth()+1}/${now.getDate()}`;
 
-        const newTx = { id: Date.now(), type, cat, amount, desc, date: dateStr, lentTo, returnDate, account };
+        const newTx = { id: Date.now(), type, cat, amount, desc, date: dateStr, lentTo, payDay, endDate, account };
         transactions.unshift(newTx);
         
-        localStorage.setItem('my_finance_pwa_v3', JSON.stringify(transactions));
+        localStorage.setItem('my_finance_pwa_v4', JSON.stringify(transactions));
         render();
         
         this.reset();
@@ -349,15 +400,15 @@
 
     function deleteTx(id) {
         transactions = transactions.filter(t => t.id !== id);
-        localStorage.setItem('my_finance_pwa_v3', JSON.stringify(transactions));
+        localStorage.setItem('my_finance_pwa_v4', JSON.stringify(transactions));
         render();
     }
 
     function updateChart() {
-        const categories = ['Хүнс', 'Унаа', 'Хэрэглээ', 'Бусад'];
+        const categories = ['Эрүүл мэнд', 'Хүү', 'Нөхөр', 'Өөртөө'];
         const dataVals = categories.map(cat => {
             return transactions
-                .filter(t => t.type === 'expense' && t.cat.includes(cat))
+                .filter(t => t.type === 'expense' && t.cat === cat)
                 .reduce((sum, t) => sum + t.amount, 0);
         });
 
@@ -370,7 +421,7 @@
             type: 'doughnut',
             data: {
                 labels: categories,
-                datasets: [{ data: dataVals, backgroundColor: ['#ff4d4d', '#45f3ff', '#ffb300', '#795548'], borderWidth: 0 }]
+                datasets: [{ data: dataVals, backgroundColor: ['#2ecc71', '#ff4d4d', '#45f3ff', '#ffb300'], borderWidth: 0 }]
             },
             options: {
                 responsive: true, maintainAspectRatio: false,
