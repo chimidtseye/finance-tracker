@@ -288,6 +288,7 @@
                 <option value="Хүү">📈 Хүү</option>
                 <option value="Нөхөр">👨 Нөхөр</option>
                 <option value="Өөртөө">💃 Өөртөө</option>
+                <option value="Бусад зарлага">📦 Бусад зарлага</option>
             `;
         } else if (type === 'income') {
             catSelect.innerHTML = `<option value="Цалин">💼 Цалин, орлого</option><option value="Бусад">📦 Бусад орлого</option>`;
@@ -432,7 +433,7 @@
     }
 
     function updateChart() {
-        const categories = ['Хоол хүнс', 'Бензин, унаа', 'Ахуйн хэрэглээ', 'Гоо сайхан', 'Эрүүл мэнд', 'Хүү', 'Нөхөр', 'Өөртөө'];
+        const categories = ['Хоол хүнс', 'Бензин, унаа', 'Ахуйн хэрэглээ', 'Гоо сайхан', 'Эрүүл мэнд', 'Хүү', 'Нөхөр', 'Өөртөө', 'Бусад зарлага'];
         const dataVals = categories.map(cat => {
             return transactions
                 .filter(t => t.type === 'expense' && t.cat === cat)
@@ -450,7 +451,7 @@
                 labels: categories,
                 datasets: [{ 
                     data: dataVals, 
-                    backgroundColor: ['#2ecc71', '#ff5252', '#45ff79', '#ffb300', '#3498db', '#9b59b6', '#e67e22', '#1abc9c'], 
+                    backgroundColor: ['#2ecc71', '#ff5252', '#45ff79', '#ffb300', '#3498db', '#9b59b6', '#e67e22', '#1abc9c', '#7f8c8d'], 
                     borderWidth: 0 
                 }]
             },
